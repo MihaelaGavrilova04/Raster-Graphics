@@ -2,7 +2,6 @@
 
 #include "Image.h"
 #include "ImageCommand.h"
-#include "SharedPtr.hpp"
 #include "myVector.hpp"
 #include "myStack.hpp"
 #include <iostream>
@@ -20,25 +19,25 @@ public:
     explicit Session(int id);
 
     void addImage(Image* image);
-    void addTransformation(SharedPtr<ImageCommand>& command);
+    void addTransformation(ImageCommand* command); 
     void undoLastTransformation();
     void applyTransformations();
 
     void sessionInfo() const;
     int getSessionId() const;
-    int getNumImages()const;
+    int getNumImages() const;
 
-    void saveImage(const SharedPtr<Image>& image, const myString& filename);
+    void saveImage(Image* image, const myString& filename); 
     void saveSession();
 
-    const SharedPtr<Image>& getImageAtIndex(int index)const;
+    Image* getImageAtIndex(int index) const; 
 
     myString generateFilename(int index, PictureType type) const;
 private:
     int sessionId;
-    myVector<SharedPtr<Image>> images;
-    myVector<SharedPtr<ImageCommand>> transformations;
-    myStack<SharedPtr<ImageCommand>, S> undoStack;
+    myVector<Image*> images; 
+    myVector<ImageCommand*> transformations;
+    myStack<ImageCommand*, S> undoStack;
 
     bool newImageAdded = false;
 };
@@ -48,23 +47,22 @@ Session<S>::Session(int id) : sessionId(id) {}
 
 template <const int S>
 void Session<S>::addImage(Image* image) {
-    SharedPtr<Image> newImage(new Image(*image));
+    Image* newImage = new Image(*image); 
     images.pushBack(newImage);
     newImageAdded = true;
 }
 
 // add transformation
 template <const int S>
-void Session<S>::addTransformation(SharedPtr<ImageCommand>& command) {
+void Session<S>::addTransformation(ImageCommand* command) {
     if (!newImageAdded) {
         for (int i = 0; i < images.getSize(); i++) {
-            command->execute(images[i].operator->());
+            command->execute(images[i]);
         }
     }
     else {
         for (int i = 0; i < images.getSize() - 1; i++) {
-            command->execute(images[i].operator->());
-
+            command->execute(images[i]);
         }
         newImageAdded = false;
     }
@@ -73,11 +71,11 @@ void Session<S>::addTransformation(SharedPtr<ImageCommand>& command) {
     undoStack.push(command);
 }
 
-// undo the last transformation
+// undo last action
 template <const int S>
 void Session<S>::undoLastTransformation() {
     if (!undoStack.isEmpty()) {
-        SharedPtr<ImageCommand> lastCommand = undoStack.peek();
+        ImageCommand* lastCommand = undoStack.peek();
         lastCommand->undo();
         undoStack.pop();
     }
@@ -86,15 +84,14 @@ void Session<S>::undoLastTransformation() {
     }
 }
 
-// print session information
+// print session
 template <const int S>
 void Session<S>::sessionInfo() const {
     std::cout << "\n -INFORMATION- \n";
     std::cout << "Session ID: " << sessionId << std::endl;
     std::cout << "Number of transformations: " << transformations.getSize() << std::endl;
     std::cout << "Number of images: " << images.getSize() << std::endl;
-    for (int i = 0; i < images.getSize(); i++)
-    {
+    for (int i = 0; i < images.getSize(); i++) {
         std::cout << "Type of picture #" << i + 1 << " : ";
         std::cout << images[i]->getTypeString(images[i]->getType()) << std::endl;
     }
@@ -106,25 +103,22 @@ int Session<S>::getSessionId() const {
 }
 
 template <const int S>
-int Session<S>::getNumImages()const
-{
+int Session<S>::getNumImages() const {
     return images.getSize();
 }
 
 template <const int S>
-const SharedPtr<Image>& Session<S>::getImageAtIndex(int index)const
-{
-    if (index >= images.getSize())
+Image* Session<S>::getImageAtIndex(int index) const {
+    if (index >= images.getSize()) {
         throw std::logic_error("Invalid index!\n");
+    }
     return images[index];
 }
 
 // save session
 template <const int S>
-void Session<S>::saveSession() 
-{
-    for (int i = 0; i < images.getSize(); i++) 
-    {
+void Session<S>::saveSession() {
+    for (int i = 0; i < images.getSize(); i++) {
         saveImage(images[i], generateFilename(i, images[i]->getType()));
     }
 }
@@ -151,21 +145,20 @@ myString Session<S>::generateFilename(int index, PictureType type) const {
     return myString(ss.str().c_str());
 }
 
-
 template <const int S>
-void Session<S>::saveImage(const SharedPtr<Image>& image, const myString& filename) {
+void Session<S>::saveImage(Image* image, const myString& filename) {
     ImageWriter* writer = nullptr;
     switch (image->getType()) {
     case PictureType::PPM:
-        writer = new PPM_Writer(filename.c_str(), image.operator->());
+        writer = new PPM_Writer(filename.c_str(), image);
         writer->saveImage();
         break;
     case PictureType::PGM:
-        writer = new PGM_Writer(filename.c_str(), image.operator->());
+        writer = new PGM_Writer(filename.c_str(), image);
         writer->saveImage();
         break;
     case PictureType::PBM:
-        writer = new PBM_Writer(filename.c_str(), image.operator->());
+        writer = new PBM_Writer(filename.c_str(), image);
         writer->saveImage();
         break;
     default:
@@ -179,9 +172,8 @@ void Session<S>::saveImage(const SharedPtr<Image>& image, const myString& filena
 template <const int S>
 void Session<S>::applyTransformations() {
     for (int i = 0; i < transformations.getSize(); i++) {
-
-        for (int j = 0; j < images.getSize(); j++) 
-            transformations[i]->execute(images[j].operator->());
-        
+        for (int j = 0; j < images.getSize(); j++) {
+            transformations[i]->execute(images[j]);
+        }
     }
 }
