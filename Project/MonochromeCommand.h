@@ -1,16 +1,13 @@
 #pragma once
-#include "ImageCommand.h"
-#include "MonochromeConverter.h"
-#include "SharedPtr.hpp"
-class MonochromeCommand:public ImageCommand
+#include "ImageConverter.h"
+#include "RGB.h"
+class MonochromeConverter : public ImageConverter
 {
 public:
-    MonochromeCommand(MonochromeConverter* converter);
 
-    void execute(Image* image) override;
-    void undo() override;
+    MonochromeConverter() = default;
+    void toMonochrome(Image* image);
 private:
-    MonochromeConverter* converter;
-    SharedPtr<Image> image;
-    myVector<RGB> previousPixels;
-};  
+    void operate(int x, int y, RGB& pixel) override;
+
+};
