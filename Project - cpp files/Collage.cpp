@@ -1,6 +1,6 @@
 #include "Collage.h"
 
-SharedPtr<Image> Collage::horizontalCollage(const SharedPtr<Image>& image1, const SharedPtr<Image>& image2)
+Image* Collage::horizontalCollage(Image* image1, Image* image2)
 {
     if (!areCompatible(image1, image2))
         throw std::logic_error("Incompatible");
@@ -11,28 +11,28 @@ SharedPtr<Image> Collage::horizontalCollage(const SharedPtr<Image>& image1, cons
 
     myVector<RGB> collagePixels(width * height);
 
-    int firstImageWidth  = image1->getWidth();
-    for (int y = 0; y < height; y++) 
+    int firstImageWidth = image1->getWidth();
+    for (int y = 0; y < height; y++)
     {
-        for (int x = 0; x < firstImageWidth; x++) 
+        for (int x = 0; x < firstImageWidth; x++)
         {
             collagePixels.pushBack(image1->getPixel(x, y));
         }
     }
 
     int secondImageWidth = image1->getWidth();
-    for (int y = 0; y < height;y++) {
-        for (int x = 0; x < secondImageWidth;x++) {
+    for (int y = 0; y < height; y++) {
+        for (int x = 0; x < secondImageWidth; x++) {
             collagePixels.pushBack(image2->getPixel(x, y));
         }
     }
 
     Image* collage = new Image(type, width, height, collagePixels);
 
-    return SharedPtr<Image>(collage);
+    return collage;
 }
 
-SharedPtr<Image> Collage::verticalCollage(const SharedPtr<Image>& image1, const SharedPtr<Image>& image2) 
+Image* Collage::verticalCollage(Image* image1, Image* image2)
 {
     if (!areCompatible(image1, image2))
         throw std::logic_error("Incompatible");
@@ -52,9 +52,9 @@ SharedPtr<Image> Collage::verticalCollage(const SharedPtr<Image>& image1, const 
     }
 
     int secondImageHeight = image2->getHeight();
-    for (int y = 0; y < secondImageHeight; y++) 
+    for (int y = 0; y < secondImageHeight; y++)
     {
-        for (int x = 0; x < width; x++) 
+        for (int x = 0; x < width; x++)
         {
             collagePixels.pushBack(image2->getPixel(x, y));
         }
@@ -62,12 +62,12 @@ SharedPtr<Image> Collage::verticalCollage(const SharedPtr<Image>& image1, const 
 
     Image* collage = new Image(type, width, height, collagePixels);
 
-    return SharedPtr<Image>(collage);
+    return collage;
 }
 
-bool Collage::areCompatible(const SharedPtr<Image>& image1, const SharedPtr<Image>& image2)
+bool Collage::areCompatible(Image* image1, Image* image2)
 {
-    if (!image1.isInitlized() || !image2.isInitlized())
+    if (!image1 || !image2)
         return false;
 
     if (image1->getType() != image2->getType() ||
