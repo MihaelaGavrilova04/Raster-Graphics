@@ -1,6 +1,5 @@
 #pragma once
 #include "Image.h"
-#include "SharedPtr.hpp"
 class ImageCommand {
 public:
     virtual ~ImageCommand() {}
