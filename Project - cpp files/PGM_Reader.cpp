@@ -11,7 +11,7 @@ Image* PGM_Reader::createImage()const
     bool maxColorValueFound = false;
     bool read = 0;
     for (int i = 0; i < vectorSize; i++) {
-        if (allData[i][0] == '#') //skip comments
+        if (allData[i][0] == '#')
             continue;
 
         std::stringstream ss(allData[i].c_str());
