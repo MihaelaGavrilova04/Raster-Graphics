@@ -1,7 +1,6 @@
 #pragma once
 #include "ImageCommand.h"
 #include "GrayscaleConverter.h"
-#include "SharedPtr.hpp"
 class GrayscaleCommand:public ImageCommand
 {
 public:
