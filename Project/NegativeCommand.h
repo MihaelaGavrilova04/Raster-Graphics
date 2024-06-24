@@ -9,6 +9,6 @@ public:
 	void undo()override;
 private:
 	NegativeConverter* converter;
-	SharedPtr<Image> image;
+	Image* image;
 	myVector<RGB> previousPixels;
 };
